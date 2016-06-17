@@ -13,20 +13,23 @@
 (setq default-frame-alist '((width . 80) (height . 30)))
 ;; Mac環境でnw,GUIともになぜか動作しない
 (cond 
- ((string-match "x86_64-apple-darwin13.2.0" system-configuration) 
+ ((equal system-type 'darwin) 
+  (cond
+   ((window-system)
 
-  (set-face-attribute 'default nil
-		      :family "monaco" ;; font
-		      :height 150)     ;; font size
-  (set-fontset-font
-   (frame-parameter nil 'font)
-   'japanese-jisx0208
-   '("Hiragino Maru Gothic ProN" . "iso10646-1"))
-  (setq initial-frame-alist
-	'((width . 80) (height . 40)))
+    (set-face-attribute 'default nil
+			:family "monaco" ;; font
+			:height 150)     ;; font size
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     'japanese-jisx0208
+     '("Hiragino Maru Gothic ProN" . "iso10646-1"))
+    (setq initial-frame-alist
+	  '((width . 80) (height . 40)))
+    ))
   ))
 (cond 
- ((string-match "solaris2.11" system-configuration)
+ ((equal system-type 'usg-unix-v)
   ;; (cond
   ;;  ((featurep 'x-toolkit)
   ;; (custom-set-faces '(default ((t (:family "unknown-DejaVu Sans" :height 13 :weight normal)))))
@@ -41,6 +44,8 @@
   ;; (custom-set-faces '(default ((t (:family "fixed" :foundry "sony" :slant normal :weight normal :height 128 :width normal)))))
   (setq initial-frame-alist
 	'((width . 100) (height . 50)))
+  (custom-set-variables
+   '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :foreground "#DCDCCC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
   ))
 ;; (setq inhibit-startup-message t)
 (menu-bar-mode 0)
@@ -256,22 +261,9 @@ See URL `http://php.net/manual/en/features.commandline.php'."
 ;;  ;; If you edit it by hand, you could mess it up, so be careful.
 ;;  ;; Your init file should contain only one such instance.
 ;;  ;; If there is more than one, they won't work right.
-;;  '(default ((t (:background "unspecified-bg" :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:background "unspecified-bg" :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
-;; (custom-set-faces
+;;  '(default ((t (:background "unspecified-bg" :slant normal :weight normal :height 1 :width normal :foundry "defau;; (custom-set-faces
 ;;  ;; custom-set-faces was added by Custom.
 ;;  ;; If you edit it by hand, you could mess it up, so be careful.
 ;;  ;; Your init file should contain only one such instance.
 ;;  ;; If there is more than one, they won't work right.
 ;;  '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
-;; (custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- ;; '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :foreground "#DCDCCC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
