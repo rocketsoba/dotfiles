@@ -80,17 +80,13 @@
 ;; (if (not (require 'flycheck nil t))
 ;;     (package-refresh-contents) 
 ;;   )
-(setq initlog '(0))
 (defvar initflag 0)
 (defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
       (if (equal initflag 0)
-	  (progn
-	    (setq initlog (cons 1 initlog))
-	    (package-refresh-contents) 	  
-	  )
+	  (package-refresh-contents) 	  
 	)
       (setq initflag 1)
       (package-install package)
