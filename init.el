@@ -2,6 +2,7 @@
 ;;; Commentary:
 ;;----"M-x eval-current-buffer" to reload init.el----
 ;;----"M-x describe-variable"で変数確認,"set-variable"で設定----
+;;----"M-x transient-mark-mode"で選択範囲の色を出すか切り替える----
 ;;; Code:
 (column-number-mode t)
 (global-linum-mode t)
@@ -33,8 +34,8 @@
   ;; (cond
   ;;  ((featurep 'x-toolkit)
   ;; (custom-set-faces '(default ((t (:family "unknown-DejaVu Sans" :height 13 :weight normal)))))
-  ;; (add-to-list 'default-frame-alist
-  ;; 	       '(font . "helvetica:size=13:weight=bold"))
+  (add-to-list 'default-frame-alist
+  	       '(font . "helvetica:size=13:weight=bold"))
   ;; (create-fontset-from-ascii-font "DejaVu Sans Mono-12:weight=normal" nil "Dejavu")
   ;; (set-face-attribute 'default nil
   ;; 		      :family "DejaVu Sans Mono" :height 140)
@@ -44,8 +45,9 @@
   ;; (custom-set-faces '(default ((t (:family "fixed" :foundry "sony" :slant normal :weight normal :height 128 :width normal)))))
   (setq initial-frame-alist
 	'((width . 100) (height . 50)))
-  (custom-set-variables
-   '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :foreground "#DCDCCC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
+  ;; (custom-set-variables
+  ;;  '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :foreground "#DCDCCC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
+ ;; '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
   ))
 ;; (setq inhibit-startup-message t)
 (menu-bar-mode 0)
@@ -68,7 +70,8 @@
 
 ;;----MELPAレポジトリ追加(emacs24以降)----
 (require 'package)
-(setq package-archives `(("melpa" . "http://stable.melpa.org/packages/")))
+(setq package-archives `(("melpa" . "http://melpa.org/packages/")))
+;; (setq package-archives `(("melpa" . "http://stable.melpa.org/packages/")))
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 ;; (add-to-list 'package-archives '("melpa" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
@@ -77,13 +80,22 @@
 ;; (if (not (require 'flycheck nil t))
 ;;     (package-refresh-contents) 
 ;;   )
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck))
+(defvar initflag 0)
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme))
 (dolist (package my-package)
   (unless (package-installed-p package)
-    (package-install package)))
+    (progn
+      (if (equal initflag 0)
+	  (package-refresh-contents) 	  
+	)
+      (setq initflag 1)
+      (package-install package)
+      )
+    )
+  )
 
 (require 'nyan-mode)
-(setq nyan-bar-length 8)
+;; (setq nyan-bar-length 8) 
 (nyan-mode)
 (nyan-start-animation)
 
@@ -181,6 +193,11 @@ See URL `http://php.net/manual/en/features.commandline.php'."
 ;;Load verilog-mode only when needed
 (autoload 'verilog-mode "verilog-mode" nil t )
 
+(add-hook 'java-mode-hook (lambda ()
+			    (setq c-basic-offset 2
+				  tab-width 2
+				  indent-tabs-mode t)))
+
 ;; Any files that end in .v should be in verilog mode
 (add-to-list 'auto-mode-alist '("\\.\\(verilog\\|template\\)\\'" . verilog-mode))
 
@@ -249,3 +266,22 @@ See URL `http://php.net/manual/en/features.commandline.php'."
 ;;----が、各package設定がよくわからないし管理もわからなかったのでそのうちやる----
 ;;----git管理&無意味なディレクトリ構造がなくなってよさそう----
 ;;----not without-gnutlsでビルドが必要----
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:inherit nil :stipple nil :background nil :foreground nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
+;; (add-to-list 'default-frame-alist '(alpha . (0.90 0.90)))
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:background "unspecified-bg" :slant normal :weight normal :height 1 :width normal :foundry "defau;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
+(put 'downcase-region 'disabled nil)
