@@ -131,7 +131,7 @@
   (load-theme 'monokai t)
   )
  (t
-  (load-theme 'zenburn t)
+  (load-theme 'wombat t)
   )
  )
 
