@@ -85,7 +85,7 @@
 ;;     (package-refresh-contents) 
 ;;   )
 (defvar initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip ac-dabbrev c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben magit))
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip ac-dabbrev c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben magit multiple-cursors json-mode))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
@@ -96,8 +96,8 @@
       (package-install package)
       )
     )
-  )
-
+  
+)
 ;; (require 'nyan-mode)
 (setq nyan-bar-length 16) 
 (nyan-mode)
@@ -128,6 +128,32 @@
   ;; (yas-global-mode 1)
   ;; (define-key php-mode-map  (kbd "C-]") 'ac-php-find-symbol-at-point)   ;goto define
   ;; (define-key php-mode-map  (kbd "C-t") 'ac-php-location-stack-back   ) ;go back
+  (hs-minor-mode 1)
+  (when (equal web-mode-engine "php")
+    ;; enable flycheck
+    (setq flycheck-phpcs-standard "PSR2")
+    ;; (flycheck-add-next-checker 'web-mode-php 'web-mode-php-phpcs)
+    ;; (flycheck-select-checker 'web-mode-php)
+    (flycheck-add-next-checker 'php 'php-phpcs)    
+    (flycheck-add-mode 'php 'web-mode)
+    (flycheck-add-mode 'php-phpcs 'web-mode)
+    ;; (flycheck-mode)
+    )
+  (when (equal web-mode-content-type "javascript")
+    ;; enable flycheck
+    (add-to-list 'flycheck-disabled-checkers 'php)
+    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
+    (add-to-list 'flycheck-disabled-checkers 'javascript-jshint)
+    (add-to-list 'flycheck-disabled-checkers 'javascript-jscs)
+    (flycheck-add-mode 'javascript-eslint 'web-mode)
+    ;; (flycheck-mode)
+    )
+  (when (and (not (equal web-mode-engine "php")) (not (equal web-mode-content-type "javascript")))
+    (add-to-list 'flycheck-disabled-checkers 'php)
+    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
+    ;; (add-to-list 'flycheck-disabled-checkers 'web-mode-php)
+    ;; (add-to-list 'flycheck-disabled-checkers 'web-mode-php-phpcs)
+    )
   )
 (add-hook 'web-mode-hook  'my-web-mode-hook)
 ;; (eval-after-load "web-mode"
@@ -203,7 +229,7 @@ See URL `http://pear.php.net/package/PHP_CodeSniffer/'."
   :predicate (lambda () (not (flycheck-buffer-empty-p)))
 
   )
-(add-to-list 'flycheck-checkers 'web-mode-php-phpcs)
+;; (add-to-list 'flycheck-checkers 'web-mode-php-phpcs)
 
 (flycheck-def-option-var flycheck-web-mode-phpmd-rulesets
     '("codesize" "design" "naming")
@@ -228,7 +254,7 @@ See URL `https://phpmd.org/'."
   :error-parser flycheck-parse-phpmd
   :modes (web-mode))
 
-(add-to-list 'flycheck-checkers 'web-mode-php-phpmd)
+;; (add-to-list 'flycheck-checkers 'web-mode-php-phpmd)
 
 (flycheck-define-checker web-mode-php
   "A PHP syntax checker using the PHP command line interpreter.
@@ -242,7 +268,7 @@ See URL `http://php.net/manual/en/features.commandline.php'."
   :modes (web-mode)
   :next-checkers ((warning . web-mode-php-phpcs))
   )
-(add-to-list 'flycheck-checkers 'web-mode-php)
+;; (add-to-list 'flycheck-checkers 'web-mode-php)
 
 (flycheck-define-checker c/c++-gcc-2
   "A C/C++ syntax checker using GCC.
@@ -296,18 +322,22 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 
 (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
 
+;; (add-hook 'web-mode-hook
+;;            (lambda ()
+;;              (when (equal web-mode-engine "php")
+;;                ;; enable flycheck
+;;                (setq flycheck-phpcs-standard "PSR2")
+;;                (flycheck-add-next-checker 'web-mode-php 'web-mode-php-phpcs)
+;;                (flycheck-select-checker 'web-mode-php)
+;;                ;; (flycheck-mode)
+;;                )
+;;              (when (not (equal web-mode-engine "php"))
+;;                (add-to-list 'flycheck-disabled-checkers 'web-mode-php)
+;;                (add-to-list 'flycheck-disabled-checkers 'web-mode-php-phpcs)
+;;                )
+;;              )
+;;            )
 
-(add-hook 'web-mode-hook
-          (lambda ()
-            (when (equal web-mode-engine "php")
-              ;; enable flycheck
-              (setq flycheck-phpcs-standard "PSR2")
-              (flycheck-add-next-checker 'web-mode-php 'web-mode-php-phpmd)
-              (flycheck-add-next-checker 'web-mode-php-phpmd 'web-mode-php-phpcs)
-              (flycheck-select-checker 'web-mode-php)
-              (flycheck-mode)
-              )
-            ))
 
 (add-hook 'c-mode-common-hook
           (lambda () 
@@ -328,6 +358,7 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 (require 'recentf)
 (setq recentf-max-saved-items 500)
 (recentf-mode +1)
+
 
 ;;Load verilog-mode only when needed
 (autoload 'verilog-mode "verilog-mode" nil t )
