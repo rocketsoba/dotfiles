@@ -85,7 +85,7 @@
 ;;     (package-refresh-contents) 
 ;;   )
 (defvar initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip ac-dabbrev c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben magit multiple-cursors json-mode))
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
@@ -97,7 +97,17 @@
       )
     )
   
-)
+  )
+
+(setq desktop-globals-to-save '(extended-command-history))
+(setq desktop-files-not-to-save "")
+(desktop-save-mode 1)
+
+(require 'helm-config)
+(require 'helm-gtags)
+(helm-mode 1)
+(global-set-key (kbd "M-x") 'helm-M-x)
+
 ;; (require 'nyan-mode)
 (setq nyan-bar-length 16) 
 (nyan-mode)
@@ -137,6 +147,11 @@
     (flycheck-add-next-checker 'php 'php-phpcs)    
     (flycheck-add-mode 'php 'web-mode)
     (flycheck-add-mode 'php-phpcs 'web-mode)
+    (auto-complete-mode t)
+    (require 'ac-php)
+    (setq ac-sources  '(ac-source-php ) )
+    (yas-global-mode 1)
+    (ac-php-core-eldoc-setup ) ;; enable eldoc
     ;; (flycheck-mode)
     )
   (when (equal web-mode-content-type "javascript")
