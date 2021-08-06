@@ -6,7 +6,7 @@ if ! [ -z $TMUX_STATUS_TIMER ]; then
         echo -n '' > $HOME/.tmux_panelist2
         for i in $(seq 0 $(expr $(tmux list-pane -a | wc -l) - 1)); do
             tmux pipe-pane -t $i "echo #{pane_current_path} >> $HOME/.tmux_panelist2"
-            sleep 0.05
+            sleep 0.1
         done
         cat $HOME/.tmux_panelist2 | sort | uniq > $HOME/.tmux_panelist
 
@@ -17,7 +17,11 @@ if ! [ -z $TMUX_STATUS_TIMER ]; then
                 git_info="["$(basename $path)":#[fg=colour2]+"$(echo -n $(echo $git_result | grep -Po '[0-9]+ (?=insertion)'))"#[fg=colour1]-"$(echo -n $(echo $git_result | grep -Po '[0-9]+ (?=deletion)'))"#[fg=colour115]]"${git_info}
             fi
         done
-        tmux setenv -g TMUX_GIT_INFO $git_info
+        if [ -z $git_info ]; then
+            tmux setenv -g TMUX_GIT_INFO ""
+        else
+            tmux setenv -g TMUX_GIT_INFO $git_info
+        fi
     fi
 else
     tmux setenv -g TMUX_STATUS_TIMER $(date +%s)
