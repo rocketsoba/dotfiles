@@ -47,7 +47,9 @@ binsearch_find () {
 
     echo ")"
     echo 'LOCAL_PATH_STR="$(IFS=:; echo "${LOCAL_PATH[*]}")"'
-    echo 'export PATH=${LOCAL_PATH_STR}:${PATH}'
+    echo 'if [ -z $TMUX ]; then'
+    echo '    export PATH=${LOCAL_PATH_STR}:${PATH}'
+    echo 'fi'
     echo "# -----------------------------------------------------------"
 }
 
