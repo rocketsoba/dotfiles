@@ -36,7 +36,12 @@ export PATH/g' ${HOME}/.bash_profile
 }
 
 config_print() {
-    echo "# ----Automatically generated config by rocketsoba/build-scripts----"
+    echo "# ----Automatically generated config by rocketsoba/build-scripts--------"
+    if command -v peco > /dev/null 2>&1; then
+        echo 'if ! [ -z "${PS1}" ]; then'
+        echo 'bind -x '\''"\C-r": peco_search_history'\'
+        echo 'fi'
+    fi
     if [ -f "/usr/share/git-core/contrib/completion/git-prompt.sh" ]; then
         echo 'source "/usr/share/git-core/contrib/completion/git-prompt.sh"'
         echo
@@ -52,18 +57,16 @@ config_print() {
     echo "HISTTIMEFORMAT='%Y-%m-%dT%T '"
     echo "PROMPT_COMMAND='share_history'"
     echo 'shopt -u histappend'
-    if command -v peco > /dev/null 2>&1; then
-        echo 'bind -x '\''"\C-r": peco_search_history'\'
-    fi
-    echo "# ------------------------------------------------------------------"
+    echo "# ----------------------------------------------------------------------"
 }
 
 cat ${HOME}"/.bash_profile" > ${HOME}"/.bash_profile.bak"
-if grep "# ----Automatically generated config by rocketsoba/build-scripts----" ${HOME}"/.bash_profile.bak" 2>&1 > /dev/null; then
-    sed -e "/^# ----Automatically generated config by rocketsoba\/build-scripts----/,/# ---/d" ${HOME}"/.bash_profile" > ${HOME}"/.bash_profile.tmp"
+if grep "# ----Automatically generated config by rocketsoba/build-scripts--------" ${HOME}"/.bash_profile.bak" 2>&1 > /dev/null; then
+    sed -e "/^# ----Automatically generated config by rocketsoba\/build-scripts--------/,/# ---/d" ${HOME}"/.bash_profile" > ${HOME}"/.bash_profile.tmp"
     cat ${HOME}"/.bash_profile.tmp" <(config_print) > ${HOME}"/.bash_profile"
     rm -f ${HOME}"/.bash_profile.tmp"
 else
     cat ${HOME}"/.bash_profile.bak" <(config_print) > ${HOME}"/.bash_profile"
 fi
 
+function_print
