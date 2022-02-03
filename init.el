@@ -103,10 +103,10 @@
 (setq desktop-files-not-to-save "")
 (desktop-save-mode 1)
 
-(require 'helm-config)
-(require 'helm-gtags)
-(helm-mode 1)
-(global-set-key (kbd "M-x") 'helm-M-x)
+;; (require 'helm-config)
+;; (require 'helm-gtags)
+;; (helm-mode 1)
+;; (global-set-key (kbd "M-x") 'helm-M-x)
 
 ;; (require 'nyan-mode)
 (setq nyan-bar-length 16) 
@@ -572,8 +572,13 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 (global-whitespace-mode 1)
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+;; (require 'command-log-mode)
+;; (global-command-log-mode)
 
-(cond 
+(savehist-mode 1)
+(setq savehist-additional-variables '(extended-command-history))
+
+(cond
  ((package-installed-p "anything")
 
   (require 'cl)  ; loop, delete-duplicates
