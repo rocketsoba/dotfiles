@@ -85,7 +85,7 @@
 ;;     (package-refresh-contents) 
 ;;   )
 (defvar initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode))
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
@@ -677,3 +677,7 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 ;;  ;; If there is more than one, they won't work right.
 ;;  )
 (put 'upcase-region 'disabled nil)
+
+;; wgrep
+(setf wgrep-enable-key "e")
+(setq wgrep-auto-save-buffer t)
