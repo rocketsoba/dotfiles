@@ -8,6 +8,9 @@ php_config_print() {
     if command -v composer > /dev/null 2>&1; then
         echo 'export COMPOSER_HOME=${HOME}/.composer'
     fi
+    if [ -d ${HOME}/.composer/vendor/bin ]; then
+        echo 'export PATH=${HOME}/.composer/vendor/bin:${PATH}'
+    fi
     echo "# ----------------------------------------------------------------------"
 }
 
