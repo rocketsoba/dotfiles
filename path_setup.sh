@@ -47,9 +47,7 @@ binsearch_find () {
 
     echo ")"
     echo 'LOCAL_PATH_STR="$(IFS=:; echo "${LOCAL_PATH[*]}")"'
-    echo 'if [ -z $TMUX ]; then'
-    echo '    export PATH=${LOCAL_PATH_STR}:${PATH}'
-    echo 'fi'
+    echo 'export PATH=${LOCAL_PATH_STR}:${PATH}'
     echo "# ----------------------------------------------------------------------"
 }
 
@@ -57,11 +55,11 @@ binsearch_insert () {
     cat ${HOME}"/.bash_profile" > ${HOME}"/.bash_profile.bak"
     if grep "# ----Automatically generated PATH by rocketsoba/build-scripts----------" ${HOME}"/.bash_profile.bak" 2>&1 > /dev/null; then
         sed -e "/^# ----Automatically generated PATH by rocketsoba\/build-scripts----------/,/# ---/d" ${HOME}"/.bash_profile" > ${HOME}"/.bash_profile.tmp"
-        cat ${HOME}"/.bash_profile.tmp" <(binsearch_find) > ${HOME}"/.bash_profile"
-        rm -f ${HOME}"/.bash_profile.tmp"
     else
-        cat ${HOME}"/.bash_profile.bak" <(binsearch_find) > ${HOME}"/.bash_profile"
+        cat ${HOME}"/.bash_profile.bak" > ${HOME}"/.bash_profile.tmp"
     fi
+    cat ${HOME}"/.bash_profile.tmp" <(binsearch_find) > ${HOME}"/.bash_profile"
+    rm -f ${HOME}"/.bash_profile.tmp"
 }
 
 case "$1" in
