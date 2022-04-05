@@ -33,6 +33,7 @@ endif
 
 " let g:nyan_modoki_select_cat_face_number = 2 let g:nayn_modoki_animation_enabled= 1
 
+set backspace=indent,eol,start
 set t_Co=256
 set t_ut=
 set background=dark
