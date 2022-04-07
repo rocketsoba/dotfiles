@@ -8,12 +8,16 @@ export PATH/export PATH=\/usr\/local\/bin:\/usr\/bin:$HOME\/\.local\/bin:$HOME\/
 /g' ${HOME}/.bash_profile
 }
 
-print_peco_function() {
+print_bashrc_function() {
     echo "# ----Automatically generated config by rocketsoba/build-scripts--------"
     echo 'function peco_search_history() {'
     echo '    local l=$(HISTTIMEFORMAT= history | sort -r | sed -e '\''s/^ *[0-9]\+ \+//'\'' | peco --query "$READLINE_LINE")'
     echo '    READLINE_LINE="$l"'
     echo '    READLINE_POINT=${#l}'
+    echo '}'
+    echo
+    echo 'function diff() {'
+    echo '    command git diff --no-index $@'
     echo '}'
     echo "# ----------------------------------------------------------------------"
 }
@@ -70,7 +74,7 @@ write_config() {
     else
         cat ${HOME}"/.bashrc.bak" > ${HOME}"/.bashrc.tmp"
     fi
-    cat ${HOME}"/.bashrc.tmp" <(print_peco_function) > ${HOME}"/.bashrc"
+    cat ${HOME}"/.bashrc.tmp" <(print_bashrc_function) > ${HOME}"/.bashrc"
     rm -f ${HOME}"/.bashrc.tmp"
 }
 
