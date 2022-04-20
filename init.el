@@ -12,41 +12,41 @@
 
 
 ;; Mac環境でnw,GUIともになぜか動作しない
-(cond 
- ((equal system-type 'darwin) 
+(cond
+ ((equal system-type 'darwin)
   (cond
    ((window-system)
 
     (set-face-attribute 'default nil
-			:family "monaco" ;; font
-			:height 150)     ;; font size
+                        :family "monaco" ;; font
+                        :height 150)     ;; font size
     (set-fontset-font
      (frame-parameter nil 'font)
      'japanese-jisx0208
      '("Hiragino Maru Gothic ProN" . "iso10646-1"))
     (setq initial-frame-alist
-	  '((width . 80) (height . 40)))
+          '((width . 80) (height . 40)))
     ))
   ))
-(cond 
+(cond
  ((equal system-type 'usg-unix-v)
   ;; (cond
   ;;  ((featurep 'x-toolkit)
   ;; (custom-set-faces '(default ((t (:family "unknown-DejaVu Sans" :height 13 :weight normal)))))
   (add-to-list 'default-frame-alist
-  	       '(font . "helvetica:size=13:weight=bold"))
+               '(font . "helvetica:size=13:weight=bold"))
   ;; (create-fontset-from-ascii-font "DejaVu Sans Mono-12:weight=normal" nil "Dejavu")
   ;; (set-face-attribute 'default nil
-  ;; 		      :family "DejaVu Sans Mono" :height 140)
+  ;;       :family "DejaVu Sans Mono" :height 140)
   ;; (set-fontset-font  (frame-parameter nil 'font)
-  ;; 		     'japanese-jisx0208
-  ;; 		     (font-spec :family "DejaVu Sans Mono"))
+  ;;      'japanese-jisx0208
+  ;;      (font-spec :family "DejaVu Sans Mono"))
   ;; (custom-set-faces '(default ((t (:family "fixed" :foundry "sony" :slant normal :weight normal :height 128 :width normal)))))
   (setq initial-frame-alist
-	'((width . 100) (height . 50)))
+        '((width . 100) (height . 50)))
   ;; (custom-set-variables
   ;;  '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :foreground "#DCDCCC" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
- ;; '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
+  ;; '(default ((t (:inherit nil :stipple nil :background "unspecified-bg" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 1 :width normal :foundry "default" :family "default")))))
   ))
 ;; (setq inhibit-startup-message t)
 (menu-bar-mode 0)
@@ -79,10 +79,10 @@
 (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 ;; (add-to-list 'package-archives '("melpa" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
-;; (package-refresh-contents) 
+;; (package-refresh-contents)
 ;;----(if (not (require 'hoge nil t)) (任意))はmustっぽい----
 ;; (if (not (require 'flycheck nil t))
-;;     (package-refresh-contents) 
+;;     (package-refresh-contents)
 ;;   )
 (defvar initflag 0)
 (defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep))
@@ -90,13 +90,12 @@
   (unless (package-installed-p package)
     (progn
       (if (equal initflag 0)
-	  (package-refresh-contents) 	  
-	)
+          (package-refresh-contents)
+        )
       (setq initflag 1)
       (package-install package)
       )
     )
-  
   )
 
 (setq desktop-globals-to-save '(extended-command-history))
@@ -109,7 +108,7 @@
 ;; (global-set-key (kbd "M-x") 'helm-M-x)
 
 ;; (require 'nyan-mode)
-(setq nyan-bar-length 16) 
+(setq nyan-bar-length 16)
 (nyan-mode)
 (nyan-start-animation)
 
@@ -239,9 +238,9 @@
                (t
                 (setq content (replace-regexp-in-string (concat "\n[ ]\\{" (number-to-string col) "\\}") "\n* " sel))
                 (setq content (concat "/* " content " */")))
-                )
                )
-              (t
+              )
+             (t
               (setq content (concat "/* " sel " */")))
              ) ;cond
             ) ;let
@@ -273,7 +272,6 @@
        ) ;cond
 
       (when pos-after (goto-char pos-after))
-      
       ))
   ;; (require 'ac-php)
   ;; (setq ac-sources  '(ac-source-php ) )
@@ -286,7 +284,7 @@
     (setq flycheck-phpcs-standard "PSR12")
     ;; (flycheck-add-next-checker 'web-mode-php 'web-mode-php-phpcs)
     ;; (flycheck-select-checker 'web-mode-php)
-    (flycheck-add-next-checker 'php 'php-phpcs)    
+    (flycheck-add-next-checker 'php 'php-phpcs)
     (flycheck-add-mode 'php 'web-mode)
     (flycheck-add-mode 'php-phpcs 'web-mode)
     (auto-complete-mode t)
@@ -325,7 +323,7 @@
 ;;----他のtheme----
 ;;----"https://emacsthemes.com/"----
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
-(cond 
+(cond
  ((window-system)
   (load-theme 'monokai t)
   )
@@ -348,16 +346,16 @@
 (ac-config-default)
 
 ;; (add-hook 'web-mode-before-auto-complete-hooks
-;; 	  '(lambda ()
-;; 	     (let ((web-mode-cur-language
-;; 		    (web-mode-language-at-pos)))
-;; 	       (if (string= web-mode-cur-language "php")
-;; 		   (yas-activate-extra-mode 'php-mode)
-;; 		 (yas-deactivate-extra-mode 'php-mode))
-;; 	       (if (string= web-mode-cur-language "css")
-;; 		   (setq emmet-use-css-transform t)
-;; 		 (setq emmet-use-css-transform nil)))))
-;; (add-to-list 'ac-modes 'web-mode) 
+;;           '(lambda ()
+;;              (let ((web-mode-cur-language
+;;                     (web-mode-language-at-pos)))
+;;                (if (string= web-mode-cur-language "php")
+;;                    (yas-activate-extra-mode 'php-mode)
+;;                  (yas-deactivate-extra-mode 'php-mode))
+;;                (if (string= web-mode-cur-language "css")
+;;                    (setq emmet-use-css-transform t)
+;;                  (setq emmet-use-css-transform nil)))))
+;; (add-to-list 'ac-modes 'web-mode)
 
 ;;----flyheck----
 ;;----まだあまりわかってない----
@@ -412,7 +410,7 @@ manual at URL `https://phpmd.org/documentation/index.html'."
 See URL `https://phpmd.org/'."
   :command ("phpmd" source "xml"
             (eval (flycheck-option-comma-separated-list
-                    flycheck-web-mode-phpmd-rulesets)))
+                   flycheck-web-mode-phpmd-rulesets)))
   :error-parser flycheck-parse-phpmd
   :modes (web-mode))
 
@@ -426,7 +424,7 @@ See URL `http://php.net/manual/en/features.commandline.php'."
             "-d" "log_errors=0" source)
   :error-patterns
   ((error line-start (or "Parse" "Fatal" "syntax") " error" (any ":" ",") " "
-	  (message) " in " (file-name) " on line " line line-end))
+          (message) " in " (file-name) " on line " line line-end))
   :modes (web-mode)
   :next-checkers ((warning . web-mode-php-phpcs))
   )
@@ -502,11 +500,11 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 
 
 (add-hook 'c-mode-common-hook
-          (lambda () 
-              (flycheck-select-checker 'c/c++-gcc-2)
-              (flycheck-mode)
-	      (c-turn-on-eldoc-mode)
-	      ))
+          (lambda ()
+            (flycheck-select-checker 'c/c++-gcc-2)
+            (flycheck-mode)
+            (c-turn-on-eldoc-mode)
+            ))
 
 (flycheck-pos-tip-mode)
 
@@ -514,7 +512,7 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 
 ;;----ファイル重複時にDIR表示----
 (require 'uniquify)
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets) 
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 
 ;;----C-x C-fで履歴有効化----
 (require 'recentf)
@@ -526,9 +524,9 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
 (autoload 'verilog-mode "verilog-mode" nil t )
 
 (add-hook 'java-mode-hook (lambda ()
-			    (setq c-basic-offset 2
-				  tab-width 2
-				  indent-tabs-mode t)))
+                            (setq c-basic-offset 2
+                                  tab-width 2
+                                  indent-tabs-mode t)))
 
 ;; Any files that end in .v should be in verilog mode
 (add-to-list 'auto-mode-alist '("\\.\\(verilog\\|template\\)\\'" . verilog-mode))
@@ -587,43 +585,42 @@ Requires GCC 4.8 or newer.  See URL `https://gcc.gnu.org/'."
  ((package-installed-p "anything")
 
   (require 'cl)  ; loop, delete-duplicates
-  
   (defun anything-font-families ()
     "Preconfigured `anything' for font family."
     (interactive)
     (flet ((anything-mp-highlight-match () nil))
-      (anything-other-buffer
-       '(anything-c-source-font-families)
-       "*anything font families*")))
+          (anything-other-buffer
+           '(anything-c-source-font-families)
+           "*anything font families*")))
 
   (defun anything-font-families-create-buffer ()
     (with-current-buffer
-	(get-buffer-create "*Fonts*")
+        (get-buffer-create "*Fonts*")
       (loop for family in (sort (delete-duplicates (font-family-list)) 'string<)
-	    do (insert
-		(propertize (concat family "\n")
-			    'font-lock-face
-			    (list :family family :height 2.0 :weight 'bold))))
+            do (insert
+                (propertize (concat family "\n")
+                            'font-lock-face
+                            (list :family family :height 2.0 :weight 'bold))))
       (font-lock-mode 1)))
 
   (defvar anything-c-source-font-families
     '((name . "Fonts")
       (init lambda ()
-	    (unless (anything-candidate-buffer)
-	      (save-window-excursion
-		(anything-font-families-create-buffer))
-	      (anything-candidate-buffer
-	       (get-buffer "*Fonts*"))))
+            (unless (anything-candidate-buffer)
+              (save-window-excursion
+                (anything-font-families-create-buffer))
+              (anything-candidate-buffer
+               (get-buffer "*Fonts*"))))
       (candidates-in-buffer)
       (get-line . buffer-substring)
       (action
        ("Copy Name" lambda
-	(candidate)
-	(kill-new candidate))
+        (candidate)
+        (kill-new candidate))
        ("Insert Name" lambda
-	(candidate)
-	(with-current-buffer anything-current-buffer
-	  (insert candidate))))))
+        (candidate)
+        (with-current-buffer anything-current-buffer
+          (insert candidate))))))
   ))
 
 ;; Any files in verilog mode shuold have their keywords colorized
