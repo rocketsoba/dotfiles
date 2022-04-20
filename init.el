@@ -115,7 +115,7 @@
 
 ;;----web-mode----
 ;;----"http://yanmoo.blogspot.jp/2013/06/html5web-mode.html"----
-(add-to-list 'auto-mode-alist '("\\.\\([xps]html\\|html\\|tpl\\|php\\|js\\)\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.\\([xps]html\\|html\\|tpl\\|php\\|js\\|ctp\\)\\'" . web-mode))
 ;; (add-to-list 'web-mode-content-types' ("php" . "\\.php\\'"))
 (setq-default indent-tabs-mode nil)
 (autoload 'web-mode "web-mode" nil t)
@@ -283,7 +283,7 @@
   (hs-minor-mode 1)
   (when (equal web-mode-engine "php")
     ;; enable flycheck
-    (setq flycheck-phpcs-standard "PSR2")
+    (setq flycheck-phpcs-standard "PSR12")
     ;; (flycheck-add-next-checker 'web-mode-php 'web-mode-php-phpcs)
     ;; (flycheck-select-checker 'web-mode-php)
     (flycheck-add-next-checker 'php 'php-phpcs)    
@@ -303,6 +303,11 @@
     (add-to-list 'flycheck-disabled-checkers 'javascript-jshint)
     (add-to-list 'flycheck-disabled-checkers 'javascript-jscs)
     (flycheck-add-mode 'javascript-eslint 'web-mode)
+    ;; (flycheck-mode)
+    )
+  (when (equal (file-name-extension buffer-file-name) "ctp")
+    ;; enable flycheck
+    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
     ;; (flycheck-mode)
     )
   (when (and (not (equal web-mode-engine "php")) (not (equal web-mode-content-type "javascript")))
