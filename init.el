@@ -167,6 +167,7 @@ See Info Node `(elisp)Byte Compilation'."
        (t
         (setq ctx (web-mode-point-context
                    (if mark-active (region-beginning) (line-beginning-position))))
+        ;;(message "%S" ctx)
         (setq language (plist-get ctx :language))
         (setq col (current-column))
         (cond
@@ -207,6 +208,8 @@ See Info Node `(elisp)Byte Compilation'."
             (setq content (concat "<%-- " sel " --%>")))
            ((and (= web-mode-comment-style 2) (string= web-mode-engine "smarty"))
             (setq content (concat "{* " sel " *}")))
+           ((and (= web-mode-comment-style 2) (string= web-mode-engine "expressionengine"))
+            (setq content (concat "{!-- " sel " --}")))
            ((and (= web-mode-comment-style 2) (string= web-mode-engine "xoops"))
             (setq content (concat "<{* " sel " *}>")))
            ((and (= web-mode-comment-style 2) (string= web-mode-engine "hero"))
@@ -225,10 +228,10 @@ See Info Node `(elisp)Byte Compilation'."
             ))
           ) ;case html
 
-         ((member language '("php" "javascript" "java" "jsx"))
+         ((member language '("php" "javascript" "typescript" "java" "jsx"))
           (let (alt)
             (setq alt (cdr (assoc language web-mode-comment-formats)))
-            ;;(message "alt=%S sel=%S col=%S" alt sel col)
+            ;;(message "language=%S alt=%S sel=%S col=%S" language alt sel col)
             (cond
              ((and alt (string= alt "//"))
               (setq content (replace-regexp-in-string (concat "\n[ ]\\{" (number-to-string col) "\\}") "\n" sel))
@@ -279,7 +282,59 @@ See Info Node `(elisp)Byte Compilation'."
        ) ;cond
 
       (when pos-after (goto-char pos-after))
+
       ))
+
+  (defun web-mode-uncomment (pos)
+    (let ((beg pos) (end pos) (sub2 "") (sub3 "") comment boundaries)
+      (save-excursion
+        (cond
+         ((and (get-text-property pos 'block-side)
+               (intern-soft (concat "web-mode-uncomment-" web-mode-engine "-block")))
+          (funcall (intern (concat "web-mode-uncomment-" web-mode-engine "-block")) pos))
+         ((and (setq boundaries (web-mode-comment-boundaries pos))
+               (setq beg (car boundaries))
+               (setq end (1+ (cdr boundaries)))
+               (> (- end beg) 4))
+          (when (and (eq (get-text-property beg 'part-token) 'comment)
+                     (> beg 1) ;#1158
+                     (get-text-property (1- beg) 'jsx-beg))
+            (setq beg (1- beg)
+                  end (1+ end)))
+          (setq comment (buffer-substring-no-properties beg end))
+          (setq sub2 (substring comment 0 2))
+          (cond
+           ((member sub2 '("<!" "<%"))
+            (setq comment (replace-regexp-in-string "\\(^<[!%]--[ ]?\\|[ ]?--[%]?>$\\)" "" comment)))
+           ((string= sub2 "{#")
+            (setq comment (replace-regexp-in-string "\\(^{#[ ]?\\|[ ]?#}$\\)" "" comment)))
+           ((string= sub2 "{/") ;jsx comments
+            (setq comment (replace-regexp-in-string "\\(^{/\\*[ ]?\\|[ ]?\\*/}$\\)" "" comment)))
+           ((string= sub2 "/*")
+            (setq sub3 (substring comment 0 3))
+            ;; (message "%S" comment)
+            (when (string= sub3 "/**")
+              (setq comment (replace-regexp-in-string "\\(^/\\*\\*\n\\)" "" comment))
+              (setq comment (replace-regexp-in-string "\\(^[ \t]*\\*/\n\\)" "" comment))
+              )
+            ;;(message "%S" comment)
+            ;;(setq comment (replace-regexp-in-string "\\(\\*/\\|^/\\*[ ]?\\|^[ \t]*\\*\\)" "" comment))
+            (setq comment (replace-regexp-in-string "\\([ ]?\\*/$\\|^/\\*[ ]?\\)" "" comment))
+            (setq comment (replace-regexp-in-string "\\(^[ \t]*\\*\\)" "" comment))
+            ;;(message "%S" comment)
+            )
+           ((string= sub2 "''")
+            (setq comment (replace-regexp-in-string "''" "" comment)))
+           ((string= sub2 "//")
+            (setq comment (replace-regexp-in-string "^ *//" "" comment)))
+           ) ;cond
+          (delete-region beg end)
+          (web-mode-insert-and-indent comment)
+          (goto-char beg)
+          )
+         ) ;cond
+        (indent-according-to-mode)
+        )))
 
   (hs-minor-mode 1)
   (when (equal web-mode-engine "php")
