@@ -32,7 +32,7 @@
 (package-initialize)
 
 (defvar my-initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep))
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep flycheck-phpstan))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
@@ -338,10 +338,14 @@ See Info Node `(elisp)Byte Compilation'."
 
   (hs-minor-mode 1)
   (when (equal web-mode-engine "php")
+    (require 'flycheck-phpstan)
     (setq flycheck-phpcs-standard "PSR12")
+    (setq phpstan-level 0)
     (flycheck-add-next-checker 'php 'php-phpcs)
+    (flycheck-add-next-checker 'php-phpcs 'phpstan)
     (flycheck-add-mode 'php 'web-mode)
     (flycheck-add-mode 'php-phpcs 'web-mode)
+    (flycheck-add-mode 'phpstan 'web-mode)
 
     ;; https://github.com/xcwen/ac-php
     (auto-complete-mode t)
