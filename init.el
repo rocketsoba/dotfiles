@@ -26,13 +26,16 @@
 (setq auto-save-file-name-transforms `((".*", "~/.emacs.d/backup/" t)))
 
 ;;----MELPAレポジトリ追加(emacs24以降)----
+;; minimum version: 25.2
 (require 'package)
-(setq package-archives `(("melpa" . "http://melpa.org/packages/")))
-(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
+(if (version< emacs-version "26.2")
+    (setq package-check-signature nil))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
 (defvar my-initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck go-mode badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep flycheck-phpstan))
+(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep flycheck-phpstan))
 (dolist (package my-package)
   (unless (package-installed-p package)
     (progn
