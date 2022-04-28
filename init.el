@@ -143,6 +143,7 @@
 (global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   5)))
 (global-set-key [S-mouse-4] '(lambda () (interactive) (scroll-down 1)))
 (global-set-key [S-mouse-5] '(lambda () (interactive) (scroll-up   1)))
+(global-set-key (kbd "C-t") nil)
 
 
 ;; common
@@ -220,6 +221,7 @@
 ;; undo-tree
 (require 'undo-tree)
 (setq undo-tree-auto-save-history nil)
+(define-key undo-tree-map (kbd "M-/") 'undo-tree-redo)
 (global-undo-tree-mode t)
 
 
