@@ -1,29 +1,16 @@
 ;;; package --- Summary
 ;;; Commentary:
-;;----"M-x eval-current-buffer" to reload init.el----
-;;----"M-x describe-variable"で変数確認,"set-variable"で設定----
-;;----"M-x transient-mark-mode"で選択範囲の色を出すか切り替える----
 ;;; Code:
-(column-number-mode t)
-;; (display-time)
 
-(menu-bar-mode 0)
-;; スクロールマウスの設定
-(global-set-key   [mouse-4] '(lambda () (interactive) (scroll-down 5)))
-(global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   5)))
-;;                 Shift
-(global-set-key [S-mouse-4] '(lambda () (interactive) (scroll-down 1)))
-(global-set-key [S-mouse-5] '(lambda () (interactive) (scroll-up   1)))
 
-;;----バックアップファイルの抑制---
-;;----"http://www.emacswiki.org/emacs/BackupDirectory"----
-;;----"http://masutaka.net---/chalow/2014-05-11-1.html"----
+;; backup
 (setq auto-save-list-file-prefix nil)
 (setq create-lockfiles nil)
-(setq backup-directory-alist `((".*" . "~/.emacs.d/backup/")))
-(setq auto-save-file-name-transforms `((".*", "~/.emacs.d/backup/" t)))
+(setq backup-directory-alist '((".*" . "~/.emacs.d/backup/")))
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/backup/" t)))
 
-;;----MELPAレポジトリ追加(emacs24以降)----
+
+;; package
 ;; minimum version: 25.2
 (require 'package)
 (if (version< emacs-version "26.2")
@@ -32,92 +19,146 @@
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
 
+(defvar my-package
+  '(
+    ac-php
+    anzu
+    auto-complete
+    badwolf-theme
+    basic-theme
+    c-eldoc
+    flycheck
+    flycheck-phpstan
+    flycheck-pos-tip
+    geben
+    helm
+    helm-gtags
+    indent-guide
+    json-mode
+    multiple-cursors
+    nlinum
+    nlinum-relative
+    nyan-mode
+    planet-theme
+    smooth-scrolling
+    undo-tree
+    vimrc-mode
+    web-mode
+    wgrep
+    yaml-mode
+    zenburn-theme
+    )
+  )
 (defvar my-initflag 0)
-(defvar my-package '(zenburn-theme verilog-mode web-mode auto-complete flycheck badwolf-theme basic-theme nyan-mode flycheck-pos-tip c-eldoc ac-php vimrc-mode nlinum nlinum-relative undo-tree anzu sql-indent geben multiple-cursors json-mode planet-theme indent-guide smooth-scrolling helm helm-gtags yaml-mode wgrep flycheck-phpstan))
+
 (dolist (package my-package)
-  (unless (package-installed-p package)
-    (progn
-      (if (equal my-initflag 0)
-          (package-refresh-contents)
+  (when (not (package-installed-p package))
+      (when (equal my-initflag 0)
+        (package-refresh-contents)
+        (setq my-initflag 1)
         )
-      (setq my-initflag 1)
       (package-install package)
       )
-    )
   )
 
-;;----lispのパスを通す----
+
+;; load function path
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
-;; (require 'helm-config)
-;; (require 'helm-gtags)
-;; (helm-mode 1)
-;; (global-set-key (kbd "M-x") 'helm-M-x)
 
-(setq nyan-bar-length 16)
-(nyan-mode)
-(nyan-start-animation)
+;; c
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (load "gcc-2.el" t)
+            (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
+            (flycheck-select-checker 'c/c++-gcc-2)
+            (c-turn-on-eldoc-mode)
+            )
+          )
+
+
+;; web-mode
+(add-hook 'web-mode-hook
+          (lambda ()
+            (setq web-mode-markup-indent-offset 2)
+            (setq web-mode-css-indent-offset 2)
+            (setq web-mode-code-indent-offset 4)
+            (setq web-mode-block-padding 0)
+            (setq web-mode-comment-style 2)
+
+            (setq-default web-mode-comment-formats (delete '("php" . "/*") web-mode-comment-formats))
+            (add-to-list 'web-mode-comment-formats '("php" . "/**"))
+
+            (load "web-mode-comment" t)
+            (load "web-mode-uncomment" t)
+
+            (hs-minor-mode 1)
+            (when (equal web-mode-engine "php")
+              (require 'flycheck-phpstan)
+              (setq flycheck-phpcs-standard "PSR12")
+              (setq phpstan-level 0)
+              (flycheck-add-next-checker 'php 'php-phpcs)
+              (flycheck-add-next-checker 'php-phpcs 'phpstan)
+              (flycheck-add-mode 'php 'web-mode)
+              (flycheck-add-mode 'php-phpcs 'web-mode)
+              (flycheck-add-mode 'phpstan 'web-mode)
+
+              ;; https://github.com/xcwen/ac-php
+              (require 'ac-php)
+              (setq ac-sources  '(ac-source-php ))
+              (yas-minor-mode 1)
+              (ac-php-core-eldoc-setup)
+
+              (setq  geben-dbgp-default-port 9001)
+              )
+            (when (equal (file-name-extension buffer-file-name) "ctp")
+              (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
+              )
+            (when (equal web-mode-content-type "javascript")
+              (add-to-list 'flycheck-disabled-checkers 'php)
+              (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
+              (add-to-list 'flycheck-disabled-checkers 'javascript-jshint)
+              (add-to-list 'flycheck-disabled-checkers 'javascript-jscs)
+              (flycheck-add-mode 'javascript-eslint 'web-mode)
+              )
+            )
+          )
+
 
 ;; elisp
-(load "emacs-lisp")
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (load "emacs-lisp" t)
+            )
+          )
 
-;;----web-mode----
-;;----"http://yanmoo.blogspot.jp/2013/06/html5web-mode.html"----
+
+;; auto-mode-alist
 (add-to-list 'auto-mode-alist '("\\.\\([xps]html\\|html\\|tpl\\|php\\|js\\|ctp\\)\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+
+
+;; define-key
+(global-set-key   [mouse-4] '(lambda () (interactive) (scroll-down 5)))
+(global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   5)))
+(global-set-key [S-mouse-4] '(lambda () (interactive) (scroll-down 1)))
+(global-set-key [S-mouse-5] '(lambda () (interactive) (scroll-up   1)))
+
+
+;; common
+(column-number-mode t)
+(menu-bar-mode 0)
+
+(setq comment-style 'indent)
+(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 (setq-default indent-tabs-mode nil)
-(autoload 'web-mode "web-mode" nil t)
-(defun my-web-mode-hook ()
-  "Hooks for Web mode."
-  ;;----htmlのインデント----
-  (setq web-mode-markup-indent-offset 2)
-  ;;----CSSのインデント----
-  (setq web-mode-css-indent-offset 2)
-  ;;----PHP,JSなどのインデント----
-  (setq web-mode-code-indent-offset 4)
-  ;;----<?phpのしたのインデント----
-  (setq web-mode-block-padding 0)
-  ;;----コメントのスタイル----
-  (setq web-mode-comment-style 2)
+(setf wgrep-enable-key "e")
+(setq wgrep-auto-save-buffer t)
+(put 'upcase-region 'disabled nil)
 
-  (setq-default web-mode-comment-formats (delete '("php" . "/*") web-mode-comment-formats))
-  (add-to-list 'web-mode-comment-formats '("php" . "/**"))
 
-  (load "web-mode-comment")
-  (load "web-mode-uncomment")
-
-  (hs-minor-mode 1)
-  (when (equal web-mode-engine "php")
-    (require 'flycheck-phpstan)
-    (setq flycheck-phpcs-standard "PSR12")
-    (setq phpstan-level 0)
-    (flycheck-add-next-checker 'php 'php-phpcs)
-    (flycheck-add-next-checker 'php-phpcs 'phpstan)
-    (flycheck-add-mode 'php 'web-mode)
-    (flycheck-add-mode 'php-phpcs 'web-mode)
-    (flycheck-add-mode 'phpstan 'web-mode)
-
-    ;; https://github.com/xcwen/ac-php
-    (auto-complete-mode t)
-    (require 'ac-php)
-    (setq ac-sources  '(ac-source-php ) )
-    (yas-global-mode 1)
-    (ac-php-core-eldoc-setup)
-    )
-  (when (equal (file-name-extension buffer-file-name) "ctp")
-    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
-    )
-  (when (equal web-mode-content-type "javascript")
-    (add-to-list 'flycheck-disabled-checkers 'php)
-    (add-to-list 'flycheck-disabled-checkers 'php-phpcs)
-    (add-to-list 'flycheck-disabled-checkers 'javascript-jshint)
-    (add-to-list 'flycheck-disabled-checkers 'javascript-jscs)
-    (flycheck-add-mode 'javascript-eslint 'web-mode)
-    )
-  )
-(add-hook 'web-mode-hook  'my-web-mode-hook)
-
-;;----theme----
-;;----"https://emacsthemes.com/"----
+;; theme
+;; https://emacsthemes.com/
 (cond
  ((window-system)
   (load-theme 'monokai t)
@@ -128,93 +169,81 @@
   )
  )
 
-;;----auto-complete.el----
-;;----"http://fukuyama.co/emacs-auto-complete"----
-;;----別ファイルなしでもdict読み込めるかもしれない----
-;; (require 'auto-complete)
+
+;; nyan-mode
+(require 'nyan-mode)
+(setq nyan-bar-length 16)
+(nyan-mode)
+(nyan-start-animation)
+
+
+;; auto-complete
 (require 'auto-complete-config)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/lisp/dict")
 (ac-config-default)
 
-;;----flyheck----
+
+;; flyheck
+(require 'flycheck)
 (global-flycheck-mode)
 (flycheck-pos-tip-mode)
 
-(load "gcc-2.el")
 
-(add-to-list 'flycheck-checkers 'c/c++-gcc-2)
-
-(add-hook 'c-mode-common-hook
-          (lambda ()
-            (flycheck-select-checker 'c/c++-gcc-2)
-            (flycheck-mode)
-            (c-turn-on-eldoc-mode)
-            ))
-
-(setq comment-style 'indent)
-
-;;----ファイル重複時にDIR表示----
-(require 'uniquify)
-(setq uniquify-buffer-name-style 'post-forward-angle-brackets)
-
-;;----C-x C-fで履歴有効化----
+;; recentf
 (require 'recentf)
 (setq recentf-max-saved-items 500)
-(recentf-mode +1)
+(recentf-mode 1)
 
-;; indent
+
+;; indent-guide
 (require 'indent-guide)
 (indent-guide-global-mode)
 ;; (setq indent-guide-recursive t)
 
-;; スムーズスクロール
-(smooth-scrolling-mode)
+
+;; smooth-scrolling
+(require 'smooth-scrolling)
 (setq smooth-scroll-margin 5)
+(smooth-scrolling-mode)
+
 
 ;; nlinum
-(global-nlinum-mode t)
+(require 'nlinum)
 (setq nlinum-format "%3d ")
+(global-nlinum-mode t)
 
 
-(global-anzu-mode +1)
+;; anzu
+(require 'anzu)
+(global-anzu-mode 1)
 
+
+;; undo-tree
 (require 'undo-tree)
+(setq undo-tree-auto-save-history nil)
 (global-undo-tree-mode t)
-(global-set-key (kbd "M-/") 'undo-tree-redo)
 
-;; (eval-after-load "sql"
-;;   (load-library "sql-indent"))
-
-(setq  geben-dbgp-default-port 9001)
 
 ;; whitespace-mode
+;; toggle後、読み込み直すと無効化できる
 (require 'whitespace)
-(setq whitespace-style '(face
-                         trailing
-                         tabs
-                         space-mark
-                         tab-mark))
-(setq whitespace-display-mappings
-      '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
+(setq whitespace-style
+      '(
+        face
+        trailing
+        tabs
+        space-mark
+        tab-mark
+        )
+      )
+(setq whitespace-display-mappings '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
 (global-whitespace-mode 1)
 
-(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-;; (require 'command-log-mode)
-;; (global-command-log-mode)
 
-(savehist-mode 1)
+;; savehist
+(require 'savehist)
 (setq savehist-additional-variables '(extended-command-history))
+(savehist-mode 1)
 
-;;----x関連をwithでビルドすると動きそう----
-;; (require 'simpleclip)
-;; (xterm-mouse-mode t)
-;; (simpleclip-mode t)
-
-(put 'upcase-region 'disabled nil)
-
-;; wgrep
-(setf wgrep-enable-key "e")
-(setq wgrep-auto-save-buffer t)
 
 (provide 'init)
 ;;; init.el ends here
