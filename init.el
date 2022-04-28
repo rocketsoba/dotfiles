@@ -133,9 +133,21 @@
           )
 
 
+;; sql
+(add-hook 'sql-mode-hook
+          (lambda ()
+            (if (or (string-match "ENGINE=InnoDB" (buffer-string))
+                    (string-match "ENGINE=MyISAM" (buffer-string)))
+                (sql-set-product "mysql")
+              )
+            )
+          )
+
 ;; auto-mode-alist
 (add-to-list 'auto-mode-alist '("\\.\\([xps]html\\|html\\|tpl\\|php\\|js\\|ctp\\)\\'" . web-mode))
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+;; shebang
+(add-to-list 'interpreter-mode-alist '("php" . web-mode))
 
 
 ;; define-key
