@@ -39,6 +39,7 @@
     nlinum
     nlinum-relative
     nyan-mode
+    package-utils
     planet-theme
     smooth-scrolling
     undo-tree
@@ -59,6 +60,65 @@
         )
       (package-install package)
       )
+  )
+
+
+;; 一週間ごとにパッケージの更新を確認する
+(require 'package-utils)
+(setq last-update-checked-date-path "~/.emacs.d/last_update_checked_date")
+(setq updated-package-list-path "~/.emacs.d/updated_package_list")
+
+(if (file-readable-p last-update-checked-date-path)
+    (with-temp-buffer
+      (insert-file-contents last-update-checked-date-path)
+      (let ((last-updated-time (read (buffer-substring-no-properties (point-min) (point-max))))
+            (current-time (truncate (float-time))))
+        (setq package-update-elapsed-time (- current-time last-updated-time))
+        )
+      )
+  )
+
+(when (or
+       (not (boundp 'package-update-elapsed-time))
+       (>= package-update-elapsed-time (* 86400 7))
+       )
+
+  (package-refresh-contents)
+  (setq upgradable-packages (package-utils-upgradable-packages))
+
+  (when upgradable-packages
+    (let ((package-info-list))
+      (dolist (package upgradable-packages)
+        (package-utils-upgrade-by-name package)
+        (add-to-list 'package-info-list (package-desc-full-name (car (cdr (assq package package-alist)))))
+        )
+      (setq package-update-list-element (cons (current-time-string) (list package-info-list)))
+      )
+
+    (cond
+     ((file-readable-p updated-package-list-path)
+      (with-temp-buffer
+        (insert-file-contents updated-package-list-path)
+        (setq package-update-list (read (buffer-substring-no-properties (point-min) (point-max))))
+        )
+      )
+     (t
+      (setq package-update-list ())
+      )
+     )
+
+    (add-to-list 'package-update-list package-update-list-element)
+
+    (with-temp-buffer
+      (insert (prin1-to-string package-update-list))
+      (write-region nil nil updated-package-list-path)
+      )
+    )
+
+  (with-temp-buffer
+    (insert (prin1-to-string (truncate (float-time))))
+    (write-region nil nil last-update-checked-date-path)
+    )
   )
 
 
