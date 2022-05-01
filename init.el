@@ -10,6 +10,13 @@
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/backup/" t)))
 
 
+;; custom-file
+(setq custom-file "~/.emacs.d/custom.el")
+(if (file-readable-p custom-file)
+    (load custom-file)
+  )
+
+
 ;; package
 ;; minimum version: 25.2
 (require 'package)
