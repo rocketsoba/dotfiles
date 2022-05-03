@@ -54,6 +54,8 @@
     web-mode
     wgrep
     yaml-mode
+    yasnippet
+    yasnippet-snippets
     zenburn-theme
     )
   )
@@ -136,7 +138,7 @@
 ;; c
 (add-hook 'c-mode-common-hook
           (lambda ()
-            (load "gcc-2.el" t)
+            (load "gcc-2" t)
             (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
             (flycheck-select-checker 'c/c++-gcc-2)
             (c-turn-on-eldoc-mode)
@@ -145,6 +147,14 @@
 
 
 ;; web-mode
+(let ((web-mode-snippet-dir (concat "~/.emacs.d/elpa/"
+                                    (package-desc-full-name (car (cdr (assq 'yasnippet-snippets package-alist))))
+                                    "/snippets/web-mode/")))
+  (when (file-exists-p web-mode-snippet-dir)
+    (delete-directory web-mode-snippet-dir t nil)
+    (yas-reload-all)
+    )
+  )
 (add-hook 'web-mode-hook
           (lambda ()
             (setq web-mode-markup-indent-offset 2)
@@ -172,9 +182,11 @@
 
               ;; https://github.com/xcwen/ac-php
               (require 'ac-php)
+              (load "ac-php-candidate-ac" t)
               (setq ac-sources  '(ac-source-php ))
               (yas-minor-mode 1)
               (ac-php-core-eldoc-setup)
+              (yas-activate-extra-mode 'php-mode)
 
               (setq  geben-dbgp-default-port 9001)
               )
