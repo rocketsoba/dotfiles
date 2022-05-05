@@ -48,6 +48,7 @@
     nyan-mode
     package-utils
     planet-theme
+    request
     smooth-scrolling
     undo-tree
     vimrc-mode
@@ -147,12 +148,53 @@
 
 
 ;; web-mode
-(let ((web-mode-snippet-dir (concat "~/.emacs.d/elpa/"
-                                    (package-desc-full-name (car (cdr (assq 'yasnippet-snippets package-alist))))
-                                    "/snippets/web-mode/")))
-  (when (file-exists-p web-mode-snippet-dir)
-    (delete-directory web-mode-snippet-dir t nil)
-    (yas-reload-all)
+;; PHP5.6以下の時にphpctagsのバージョンを下げる
+(setq ac-php-core-path (concat "~/.emacs.d/elpa/"
+                               (package-desc-full-name (car (cdr (assq 'ac-php-core package-alist))))))
+(let ((path-and-urls (list (cons (concat ac-php-core-path "/phpctags56") "https://github.com/xcwen/ac-php/raw/362907ca3dac0b5525a6881678e0f07b82f7a77f/phpctags")
+                           (cons (concat ac-php-core-path "/phpctags70") "https://github.com/xcwen/ac-php/raw/master/phpctags"))))
+  (dolist (path-and-url path-and-urls)
+    (when (not (file-readable-p (car path-and-url)))
+      (require 'request)
+      (request (cdr path-and-url)
+               :sync t
+               :complete (cl-function
+                          (lambda (&key response &allow-other-keys)
+                            (with-temp-buffer
+                              (let ((result (request-response-data response))
+                                    (coding-system-for-read 'no-conversion)
+                                    (coding-system-for-write 'no-conversion))
+                                (insert result)
+                                (write-region nil nil (car path-and-url))
+                                (set-file-modes (car path-and-url) #o755)
+                                )
+                              )
+                            )
+                          )
+               )
+      )
+    )
+  )
+(let ((php-version (shell-command-to-string "php -v")))
+  (string-match "^PHP \\([0-9]+\\.[0-9]+\\.[0-9]+\\)" php-version)
+  (cond
+   ((version< (match-string 1 php-version) "7.0")
+    (copy-file (concat ac-php-core-path "/phpctags56") (concat ac-php-core-path "/phpctags") t)
+    )
+   (t
+    (copy-file (concat ac-php-core-path "/phpctags70") (concat ac-php-core-path "/phpctags") t)
+    )
+   )
+  )
+(let ((dirs (list (concat "~/.emacs.d/elpa/"
+                                          (package-desc-full-name (car (cdr (assq 'yasnippet-snippets package-alist))))
+                                          "/snippets/web-mode/")
+                  "~/.ac-php/")
+            ))
+  (dolist (dir dirs)
+    (when (file-exists-p dir)
+      (delete-directory dir t nil)
+      )
     )
   )
 (add-hook 'web-mode-hook
@@ -171,14 +213,16 @@
 
             (hs-minor-mode 1)
             (when (equal web-mode-engine "php")
-              (require 'flycheck-phpstan)
               (setq flycheck-phpcs-standard "PSR12")
-              (setq phpstan-level 0)
               (flycheck-add-next-checker 'php 'php-phpcs)
-              (flycheck-add-next-checker 'php-phpcs 'phpstan)
               (flycheck-add-mode 'php 'web-mode)
               (flycheck-add-mode 'php-phpcs 'web-mode)
-              (flycheck-add-mode 'phpstan 'web-mode)
+              (when (executable-find "phpstan")
+                (require 'flycheck-phpstan)
+                (setq phpstan-level 0)
+                (flycheck-add-next-checker 'php-phpcs 'phpstan)
+                (flycheck-add-mode 'phpstan 'web-mode)
+                )
 
               ;; https://github.com/xcwen/ac-php
               (require 'ac-php)
