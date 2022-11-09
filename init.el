@@ -217,12 +217,12 @@
               (flycheck-add-next-checker 'php 'php-phpcs)
               (flycheck-add-mode 'php 'web-mode)
               (flycheck-add-mode 'php-phpcs 'web-mode)
-              (when (executable-find "phpstan")
-                (require 'flycheck-phpstan)
-                (setq phpstan-level 0)
-                (flycheck-add-next-checker 'php-phpcs 'phpstan)
-                (flycheck-add-mode 'phpstan 'web-mode)
-                )
+              ;; (when (executable-find "phpstan")
+              ;;   (require 'flycheck-phpstan)
+              ;;   (setq phpstan-level 0)
+              ;;   (flycheck-add-next-checker 'php-phpcs 'phpstan)
+              ;;   (flycheck-add-mode 'phpstan 'web-mode)
+              ;;   )
 
               ;; https://github.com/xcwen/ac-php
               (require 'ac-php)
