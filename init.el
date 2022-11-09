@@ -42,6 +42,7 @@
     helm-gtags
     indent-guide
     json-mode
+    markdown-mode
     multiple-cursors
     nlinum
     nlinum-relative
