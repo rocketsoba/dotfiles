@@ -42,7 +42,9 @@ binsearch_find () {
     echo "LOCAL_PATH=("
 
     for val in "${LOCAL_PATH[@]}";do
-        echo "    "\'$val\'
+        if ! echo $val | grep -E "composer|pyenv" 2>&1 > /dev/null; then
+            echo "    "\'$val\'
+        fi
     done
 
     echo ")"
