@@ -11,7 +11,7 @@ export PATH/export PATH=\/usr\/local\/bin:\/usr\/bin:$HOME\/\.local\/bin:$HOME\/
 print_bashrc_function() {
     echo "# ----Automatically generated config by rocketsoba/build-scripts--------"
     echo 'function peco_search_history() {'
-    echo '    local l=$(HISTTIMEFORMAT= history | sort -r | sed -e '\''s/^ *[0-9]\+ \+//'\'' | peco --query "$READLINE_LINE")'
+    echo '    local l=$(HISTTIMEFORMAT= history | tac | sed -e '\''s/^ *[0-9]\+ \+//'\'' | peco --query "$READLINE_LINE")'
     echo '    READLINE_LINE="$l"'
     echo '    READLINE_POINT=${#l}'
     echo '}'
