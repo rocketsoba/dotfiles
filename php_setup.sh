@@ -39,15 +39,10 @@ php_config_print() {
     if command -v $PHP_VERSION > /dev/null 2>&1; then
         echo 'source "/opt/remi/'$PHP_VERSION'/enable"'
     fi
-    if command -v composer > /dev/null 2>&1; then
+    if [ -d $BIN_PREFIX"/composer/bin" ]; then
+        echo 'export PATH='$BIN_PREFIX'/composer/bin:${PATH}'
         echo 'export COMPOSER_HOME=${HOME}/'$COMPOSER_DIR
         echo 'export PATH=${COMPOSER_HOME}/vendor/bin:${PATH}'
-    else
-        if [ -d $BIN_PREFIX"/composer/bin" ]; then
-            echo 'export PATH='$BIN_PREFIX'/composer/bin:${PATH}'
-            echo 'export COMPOSER_HOME=${HOME}/'$COMPOSER_DIR
-            echo 'export PATH=${COMPOSER_HOME}/vendor/bin:${PATH}'
-        fi
     fi
     echo "# ----------------------------------------------------------------------"
 }
