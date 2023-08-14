@@ -137,13 +137,59 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
 
-;; c
+;; semantic-mode is enabled only in c/c++-mode
+(add-hook 'change-major-mode-hook
+          (lambda ()
+            (when (not (or
+                        (equal major-mode 'c++-mode)
+                        (equal major-mode 'c-mode)
+                        ))
+              (semantic-mode -1)
+              )
+            )
+          )
+
+
+;; c/c++
 (add-hook 'c-mode-common-hook
           (lambda ()
-            (load "gcc-2" t)
+            (setq c-basic-offset 4)
+
+            (if (not (member 'c/c++-gcc-2 flycheck-checkers))
+                (load "gcc-2" t)
+              )
             (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
             (flycheck-select-checker 'c/c++-gcc-2)
+
+            (require 'semantic)
+            (global-semanticdb-minor-mode)
+            (global-semantic-idle-scheduler-mode)
+            (global-semantic-idle-completions-mode)
+            (if (not (fboundp 'ac-semantic-candidates2))
+                  (load "ac-semantic-candidates2" t)
+              )
+            (semantic-mode 1)
+            ;; function name completion is available in `ac-source-semantic-raw`
+            (ac-define-source semantic-raw2
+              '((available . (or (require 'semantic-ia nil t)
+                                 (require 'semantic/ia nil t)))
+                (candidates . (ac-semantic-candidates2 ac-prefix))
+                (document . ac-semantic-doc)
+                (action . ac-semantic-action)
+                (symbol . "s")))
+            (setq ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers ac-source-semantic ac-source-semantic-raw2))
+
             (c-turn-on-eldoc-mode)
+            (let ((c-eldoc-include-path ""))
+              (setq c-eldoc-include-path (mapcar (lambda (include-path)
+                                                   (semantic-add-system-include include-path)
+                                                   (concat "-I" include-path " ")
+                                                   )
+                                                 flycheck-gcc-include-path)
+                    )
+              (setq c-eldoc-include-path (apply (function concat) c-eldoc-include-path))
+              (setq c-eldoc-includes (concat "`pkg-config gtk+-2.0 --cflags` -I./ -I../ " c-eldoc-include-path))
+              )
             )
           )
 
