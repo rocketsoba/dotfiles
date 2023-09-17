@@ -154,6 +154,15 @@
 (add-hook 'c-mode-common-hook
           (lambda ()
             (setq c-basic-offset 4)
+            (setq gcc-version nil)
+
+            (let ((gcc-info (shell-command-to-string "gcc --version")))
+              (string-match "^gcc ([^)]+) \\([\\.0-9]+\\)" gcc-info)
+              (setq gcc-version (match-string 1 gcc-info))
+              (if (and (version< gcc-version "6.1") (version<= "4.9" gcc-version))
+                  (setq flycheck-gcc-language-standard "c++14")
+                )
+              )
 
             (if (not (member 'c/c++-gcc-2 flycheck-checkers))
                 (load "gcc-2" t)
