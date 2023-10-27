@@ -41,6 +41,7 @@
     geben
     helm
     helm-gtags
+    highlight-parentheses
     indent-guide
     json-mode
     lsp-mode
@@ -455,6 +456,11 @@
       )
 (setq whitespace-display-mappings '((tab-mark ?\t [?\u00BB ?\t] [?\\ ?\t])))
 (global-whitespace-mode 1)
+
+
+;; highlight-parentheses
+(require 'highlight-parentheses)
+(global-highlight-parentheses-mode)
 
 
 ;; savehist
