@@ -34,6 +34,7 @@
     badwolf-theme
     basic-theme
     c-eldoc
+    company
     flycheck
     flycheck-phpstan
     flycheck-pos-tip
@@ -42,6 +43,7 @@
     helm-gtags
     indent-guide
     json-mode
+    lsp-mode
     markdown-mode
     multiple-cursors
     nlinum
@@ -153,51 +155,53 @@
 ;; c/c++
 (add-hook 'c-mode-common-hook
           (lambda ()
-            (setq c-basic-offset 4)
-            (setq gcc-version nil)
+            (when (not (equal buffer-file-name nil))
+              (setq c-basic-offset 4)
+              (setq gcc-version nil)
 
-            (let ((gcc-info (shell-command-to-string "gcc --version")))
-              (string-match "^gcc ([^)]+) \\([\\.0-9]+\\)" gcc-info)
-              (setq gcc-version (match-string 1 gcc-info))
-              (if (and (version< gcc-version "6.1") (version<= "4.9" gcc-version))
-                  (setq flycheck-gcc-language-standard "c++14")
+              (let ((gcc-info (shell-command-to-string "gcc --version")))
+                (string-match "^gcc ([^)]+) \\([\\.0-9]+\\)" gcc-info)
+                (setq gcc-version (match-string 1 gcc-info))
+                (if (and (version< gcc-version "6.1") (version<= "4.9" gcc-version))
+                    (setq flycheck-gcc-language-standard "c++14")
+                  )
                 )
-              )
 
-            (if (not (member 'c/c++-gcc-2 flycheck-checkers))
-                (load "gcc-2" t)
-              )
-            (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
-            (flycheck-select-checker 'c/c++-gcc-2)
+              (if (not (member 'c/c++-gcc-2 flycheck-checkers))
+                  (load "gcc-2" t)
+                )
+              (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
+              (flycheck-select-checker 'c/c++-gcc-2)
 
-            (require 'semantic)
-            (global-semanticdb-minor-mode)
-            (global-semantic-idle-scheduler-mode)
-            (global-semantic-idle-completions-mode)
-            (if (not (fboundp 'ac-semantic-candidates2))
+              (require 'semantic)
+              (global-semanticdb-minor-mode)
+              (global-semantic-idle-scheduler-mode)
+              (global-semantic-idle-completions-mode)
+              (if (not (fboundp 'ac-semantic-candidates2))
                   (load "ac-semantic-candidates2" t)
-              )
-            (semantic-mode 1)
-            ;; function name completion is available in `ac-source-semantic-raw`
-            (ac-define-source semantic-raw2
-              '((available . (or (require 'semantic-ia nil t)
-                                 (require 'semantic/ia nil t)))
-                (candidates . (ac-semantic-candidates2 ac-prefix))
-                (document . ac-semantic-doc)
-                (action . ac-semantic-action)
-                (symbol . "s")))
-            (setq ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers ac-source-semantic ac-source-semantic-raw2))
+                )
+              (semantic-mode 1)
+              ;; function name completion is available in `ac-source-semantic-raw`
+              (ac-define-source semantic-raw2
+                                '((available . (or (require 'semantic-ia nil t)
+                                                   (require 'semantic/ia nil t)))
+                                  (candidates . (ac-semantic-candidates2 ac-prefix))
+                                  (document . ac-semantic-doc)
+                                  (action . ac-semantic-action)
+                                  (symbol . "s")))
+              (setq ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers ac-source-semantic ac-source-semantic-raw2))
 
-            (c-turn-on-eldoc-mode)
-            (let ((c-eldoc-include-path ""))
-              (setq c-eldoc-include-path (mapcar (lambda (include-path)
-                                                   (semantic-add-system-include include-path)
-                                                   (concat "-I" include-path " ")
-                                                   )
-                                                 flycheck-gcc-include-path)
-                    )
-              (setq c-eldoc-include-path (apply (function concat) c-eldoc-include-path))
-              (setq c-eldoc-includes (concat "`pkg-config gtk+-2.0 --cflags` -I./ -I../ " c-eldoc-include-path))
+              (c-turn-on-eldoc-mode)
+              (let ((c-eldoc-include-path ""))
+                (setq c-eldoc-include-path (mapcar (lambda (include-path)
+                                                     (semantic-add-system-include include-path)
+                                                     (concat "-I" include-path " ")
+                                                     )
+                                                   flycheck-gcc-include-path)
+                      )
+                (setq c-eldoc-include-path (apply (function concat) c-eldoc-include-path))
+                (setq c-eldoc-includes (concat "`pkg-config gtk+-2.0 --cflags` -I./ -I../ " c-eldoc-include-path))
+                )
               )
             )
           )
@@ -281,12 +285,18 @@
               ;;   )
 
               ;; https://github.com/xcwen/ac-php
-              (require 'ac-php)
-              (load "ac-php-candidate-ac" t)
-              (setq ac-sources  '(ac-source-php ))
+              ;; (require 'ac-php)
+              ;; (load "ac-php-candidate-ac" t)
+              ;; (setq ac-sources  '(ac-source-php ))
+              ;; (yas-minor-mode 1)
+              ;; (ac-php-core-eldoc-setup)
+              ;; (yas-activate-extra-mode 'php-mode)
+
+              (when (executable-find "intelephense")
+                (auto-complete-mode -1)
+                (lsp)
+                )
               (yas-minor-mode 1)
-              (ac-php-core-eldoc-setup)
-              (yas-activate-extra-mode 'php-mode)
 
               (setq  geben-dbgp-default-port 9001)
               )
@@ -321,6 +331,21 @@
               )
             )
           )
+
+
+;; lsp-mode
+(if (version< emacs-version "28.1")
+    (require 'compat)
+  )
+(add-hook 'lsp-mode-hook
+          (lambda ()
+            (setq lsp-enable-file-watchers nil)
+            (setq lsp-keep-workspace-alive nil)
+            (setq lsp-log-io t)
+            (setq lsp-ui-doc-show-with-cursor t)
+            )
+          )
+
 
 ;; auto-mode-alist
 (add-to-list 'auto-mode-alist '("\\.\\([xps]html\\|html\\|tpl\\|php\\|js\\|ctp\\)\\'" . web-mode))
