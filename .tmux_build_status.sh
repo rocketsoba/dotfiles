@@ -32,8 +32,31 @@ if ! [ -z $1 ] && ! [ -z $BASIC_USER ] && [ $(expr $(date +%s) - $TMUX_STATUS_TI
 
     JENKINS_INFO=""
     if API_RESULT=$(curl -s -u $BASIC_USER $URL); then
-        for FAILED_BUILD in $(echo $API_RESULT | jq -r '.jobs[] | select(.color | contains("red")) | .name'); do
-            JENKINS_INFO="["$FAILED_BUILD":#[fg=colour1]failed#[fg=colour115]]"$JENKINS_INFO
+        for FAILED_BUILD in $(echo $API_RESULT | jq -r '.jobs[] | .color + "," + .name'); do
+            if echo $FAILED_BUILD | grep -P "^[a-z]+_anime" > /dev/null 2>&1; then
+                JENKINS_INFO="["$(echo $FAILED_BUILD | cut -d',' -f2)":#[fg=colour2]building#[fg=colour115]]"$JENKINS_INFO
+                continue
+            fi
+
+            if echo $FAILED_BUILD | grep -P "^red" > /dev/null 2>&1; then
+                JENKINS_INFO="["$(echo $FAILED_BUILD | cut -d',' -f2)":#[fg=colour1]failed#[fg=colour115]]"$JENKINS_INFO
+                continue
+            fi
+
+            if echo $FAILED_BUILD | grep -P "^yellow" > /dev/null 2>&1; then
+                JENKINS_INFO="["$(echo $FAILED_BUILD | cut -d',' -f2)":#[fg=colour3]unstable#[fg=colour115]]"$JENKINS_INFO
+                continue
+            fi
+
+            if echo $FAILED_BUILD | grep -P "^grey" > /dev/null 2>&1; then
+                JENKINS_INFO="["$(echo $FAILED_BUILD | cut -d',' -f2)":#[fg=colour8]pending#[fg=colour115]]"$JENKINS_INFO
+                continue
+            fi
+
+            if echo $FAILED_BUILD | grep -P "^aborted" > /dev/null 2>&1; then
+                JENKINS_INFO="["$(echo $FAILED_BUILD | cut -d',' -f2)":#[fg=colour16]aborted#[fg=colour115]]"$JENKINS_INFO
+                continue
+            fi
         done
     fi
 
