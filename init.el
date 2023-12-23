@@ -260,6 +260,8 @@
   )
 (add-hook 'web-mode-hook
           (lambda ()
+            (web-mode-guess-engine-and-content-type)
+
             (setq web-mode-markup-indent-offset 2)
             (setq web-mode-css-indent-offset 2)
             (setq web-mode-code-indent-offset 4)
@@ -342,8 +344,7 @@
           (lambda ()
             (setq lsp-enable-file-watchers nil)
             (setq lsp-keep-workspace-alive nil)
-            (setq lsp-log-io t)
-            (setq lsp-ui-doc-show-with-cursor t)
+            (setq lsp-log-io nil)
             )
           )
 
@@ -373,6 +374,8 @@
 (setf wgrep-enable-key "e")
 (setq wgrep-auto-save-buffer t)
 (put 'upcase-region 'disabled nil)
+(setq gc-cons-threshold (* 16 (* 1024 1024)))
+(setq read-process-output-max (* 1024 1024))
 
 
 ;; theme
