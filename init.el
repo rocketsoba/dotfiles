@@ -345,6 +345,19 @@
             (setq lsp-enable-file-watchers nil)
             (setq lsp-keep-workspace-alive nil)
             (setq lsp-log-io nil)
+            (setq lsp-idle-delay 0.5)
+            (setq lsp-ui-sideline-show-diagnostics nil)
+            ;; (setq lsp-auto-configure nil)
+            )
+          )
+(add-hook 'lsp-after-diagnostics-hook
+          (lambda ()
+            (when (and
+                   (equal major-mode 'web-mode)
+                   (equal web-mode-engine "php")
+                   )
+              (flycheck-add-next-checker 'lsp 'php)
+              )
             )
           )
 
