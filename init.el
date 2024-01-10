@@ -39,16 +39,12 @@
     flycheck-phpstan
     flycheck-pos-tip
     geben
-    helm
-    helm-gtags
     highlight-parentheses
     indent-guide
     json-mode
     lsp-mode
     markdown-mode
     multiple-cursors
-    nlinum
-    nlinum-relative
     nyan-mode
     package-utils
     planet-theme
@@ -154,6 +150,8 @@
 
 
 ;; c/c++
+(require 'semantic)
+(require 'auto-complete)
 (add-hook 'c-mode-common-hook
           (lambda ()
             (when (not (equal buffer-file-name nil))
@@ -174,7 +172,7 @@
               (add-to-list 'flycheck-checkers 'c/c++-gcc-2)
               (flycheck-select-checker 'c/c++-gcc-2)
 
-              (require 'semantic)
+
               (global-semanticdb-minor-mode)
               (global-semantic-idle-scheduler-mode)
               (global-semantic-idle-completions-mode)
@@ -210,13 +208,13 @@
 
 ;; web-mode
 ;; PHP5.6以下の時にphpctagsのバージョンを下げる
+(require 'request)
 (setq ac-php-core-path (concat "~/.emacs.d/elpa/"
                                (package-desc-full-name (car (cdr (assq 'ac-php-core package-alist))))))
 (let ((path-and-urls (list (cons (concat ac-php-core-path "/phpctags56") "https://github.com/xcwen/ac-php/raw/362907ca3dac0b5525a6881678e0f07b82f7a77f/phpctags")
                            (cons (concat ac-php-core-path "/phpctags70") "https://github.com/xcwen/ac-php/raw/master/phpctags"))))
   (dolist (path-and-url path-and-urls)
     (when (not (file-readable-p (car path-and-url)))
-      (require 'request)
       (request (cdr path-and-url)
                :sync t
                :complete (cl-function
@@ -258,6 +256,7 @@
       )
     )
   )
+(require 'web-mode)
 (add-hook 'web-mode-hook
           (lambda ()
             (web-mode-guess-engine-and-content-type)
@@ -326,6 +325,7 @@
 
 
 ;; sql
+(require 'sql)
 (add-hook 'sql-mode-hook
           (lambda ()
             (if (or (string-match "ENGINE=InnoDB" (buffer-string))
@@ -346,18 +346,35 @@
             (setq lsp-keep-workspace-alive nil)
             (setq lsp-log-io nil)
             (setq lsp-idle-delay 0.5)
+            (setq lsp-ui-doc-enable nil)
             (setq lsp-ui-sideline-show-diagnostics nil)
-            ;; (setq lsp-auto-configure nil)
+            (when (and
+                   (fboundp 'json-available-p)
+                   (fboundp 'native-comp-available-p)
+                   (json-available-p)
+                   (native-comp-available-p)
+                   )
+              (setq lsp-ui-doc-enable t)
+              (setq lsp-ui-doc-show-with-cursor t)
+              (setq lsp-ui-sideline-show-diagnostics t)
+              (setq lsp-auto-configure t)
+              )
             )
           )
 (add-hook 'lsp-after-diagnostics-hook
           (lambda ()
+            (flycheck-remove-next-checker 'lsp 'php)
             (when (and
                    (equal major-mode 'web-mode)
                    (equal web-mode-engine "php")
                    )
               (flycheck-add-next-checker 'lsp 'php)
               )
+            )
+          )
+(add-hook 'lsp-ui-imenu-mode-hook
+          (lambda ()
+            (display-line-numbers-mode -1)
             )
           )
 
@@ -370,10 +387,6 @@
 
 
 ;; define-key
-(global-set-key   [mouse-4] '(lambda () (interactive) (scroll-down 5)))
-(global-set-key   [mouse-5] '(lambda () (interactive) (scroll-up   5)))
-(global-set-key [S-mouse-4] '(lambda () (interactive) (scroll-down 1)))
-(global-set-key [S-mouse-5] '(lambda () (interactive) (scroll-up   1)))
 (global-set-key (kbd "C-t") nil)
 
 
@@ -440,10 +453,10 @@
 (smooth-scrolling-mode)
 
 
-;; nlinum
-(require 'nlinum)
-(setq nlinum-format "%3d ")
-(global-nlinum-mode t)
+;; display-line-numbers
+(require 'display-line-numbers)
+(setq-default display-line-numbers-width 3)
+(global-display-line-numbers-mode)
 
 
 ;; anzu
