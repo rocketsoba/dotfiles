@@ -274,6 +274,15 @@
             (load "web-mode-uncomment" t)
 
             (hs-minor-mode 1)
+            (when (and
+                   (equal web-mode-content-type "html")
+                   (equal web-mode-engine "none")
+                   )
+              (when (executable-find "vscode-html-language-server")
+                (auto-complete-mode -1)
+                (lsp)
+                )
+              )
             (when (equal web-mode-engine "php")
               (setq flycheck-phpcs-standard "PSR12")
               (flycheck-add-next-checker 'php 'php-phpcs)
