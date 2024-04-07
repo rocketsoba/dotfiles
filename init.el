@@ -90,7 +90,7 @@
 
 (when (or
        (not (boundp 'package-update-elapsed-time))
-       (>= package-update-elapsed-time (* 86400 7))
+       (>= package-update-elapsed-time (* 86400 30))
        )
 
   (package-refresh-contents)
